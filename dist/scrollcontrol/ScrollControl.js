@@ -34,14 +34,19 @@ export class ScrollControl {
         this._keyboardListener.movedBy.attach(this, this._onMoved);
         this.positionChanged.post(this._position);
         this.destinationChanged.post(this._destination);
+        this._element.style.pointerEvents = 'all';
     }
     disable() {
         this._wheelListener.movedBy.detach(this, this._onMoved);
         this._dragListener.movedBy.detach(this, this._onMoved);
         this._keyboardListener.movedBy.detach(this, this._onMoved);
+        this._element.style.pointerEvents = 'none';
     }
     setOptions(options) {
         this._options = { ...this._options, ...options };
+    }
+    getOptions() {
+        return this._options;
     }
     getPosition() {
         return this._position;
@@ -74,7 +79,7 @@ export class ScrollControl {
         this._destination = this._stayWithinBounds(value);
         const direction = Math.sign(this._destination - this._prevDestination);
         this._prevSnapDestination = this._snapDestination;
-        this._snapDestination = this._snapToPoint(value, direction);
+        this._snapDestination = this._snapToPoint(this._destination, direction);
         this._ticker.tick.detach(this);
         this._ticker.tick.attach(this, this._makeTickHandler(this._prevSnapDestination, this._snapDestination));
         this.destinationChanged.post(this._snapDestination);
@@ -116,19 +121,10 @@ export class ScrollControl {
     _onMoved(delta) {
         switch (this._options.mode) {
             case 'continous': {
-                // this._preSnapDestination = undefined;
                 this.setDestination(this._destination + delta * this._options.speedFactor);
                 break;
             }
-            // case 'snapped': {
-            //     const psd = this._preSnapDestination ?? this._destination;
-            //     this._preSnapDestination = psd + delta * this._options.speedFactor;
-            //     const snappedDestination = this._snapToPoint(this._preSnapDestination, delta);
-            //     this.setDestination(snappedDestination);
-            //     break;
-            // }
             case 'discrete': {
-                // this._preSnapDestination = undefined;
                 this.setDestination(this._getNextSnapPosition(delta));
                 this._throttleTimer = setTimeout(() => (this._throttleTimer = undefined), this._options.waitTime);
                 break;

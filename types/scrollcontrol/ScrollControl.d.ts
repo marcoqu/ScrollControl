@@ -37,6 +37,7 @@ export declare class ScrollControl {
     enable(): void;
     disable(): void;
     setOptions(options: ScrollControlOptions): void;
+    getOptions(): ScrollControlOptions;
     getPosition(): number;
     setPosition(value: number): void;
     getBounds(): [number, number];
